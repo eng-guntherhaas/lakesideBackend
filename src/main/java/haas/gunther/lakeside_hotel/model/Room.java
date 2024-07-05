@@ -1,12 +1,14 @@
 package haas.gunther.lakeside_hotel.model;
 
 import ch.qos.logback.core.util.StringUtil;
+import haas.gunther.lakeside_hotel.utils.Utils;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.sql.Blob;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -28,6 +30,8 @@ public class Room {
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @Column(name = "Bookings")
     private List<BookedRoom> bookings;
+    @Lob
+    private Blob photo;
 
     public Room() {
         this.bookings = new ArrayList<>();
@@ -40,6 +44,7 @@ public class Room {
         bookings.add(bookedRoom);
         bookedRoom.setRoom(this);
         isBooked = true;
-//        String bookingCode =
+        String bookingCode = Utils.generateRandomString(10);
+        bookedRoom.setBookingConfirmationCode(bookingCode);
     }
 }
