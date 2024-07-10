@@ -16,4 +16,6 @@ public interface RoomService {
     List<Room> getAllRooms();
 
     byte[] getRoomPhotoByRoomId(Long roomId);
+
+    void deleteRoom(Long roomId);
 }

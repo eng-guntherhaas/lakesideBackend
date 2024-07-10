@@ -31,15 +31,15 @@ public class RoomResponse {
             String roomType,
             BigDecimal roomPrice,
             boolean isBooked,
-            byte[] photoByte,
-            List<BookingResponse> bookings
+            byte[] photoByte
+//            List<BookingResponse> bookings
     ) {
         this.id = id;
         this.roomType = roomType;
         this.roomPrice = roomPrice;
         this.isBooked = isBooked;
         this.photo = photoByte!= null? java.util.Base64.getEncoder().encodeToString(photoByte) : null;
-        this.bookings = bookings;
+//        this.bookings = bookings;
     }
 
 
