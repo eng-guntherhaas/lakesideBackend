@@ -32,7 +32,7 @@ public class Room {
     private List<BookedRoom> bookings;
     @Lob
     @Column(name = "Photo")
-    private byte[] photo;
+    private Blob photo;
 
     public Room() {
         this.bookings = new ArrayList<>();

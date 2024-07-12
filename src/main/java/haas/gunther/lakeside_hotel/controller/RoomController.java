@@ -1,6 +1,7 @@
 package haas.gunther.lakeside_hotel.controller;
 
 import haas.gunther.lakeside_hotel.exception.PhotoRetrievalException;
+import haas.gunther.lakeside_hotel.exception.ResourceNotFoundException;
 import haas.gunther.lakeside_hotel.model.BookedRoom;
 import haas.gunther.lakeside_hotel.model.Room;
 import haas.gunther.lakeside_hotel.response.BookingResponse;
@@ -14,11 +15,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.sql.rowset.serial.SerialBlob;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.sql.Blob;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @CrossOrigin(origins = "http://localhost:5173")
 @RestController
@@ -46,7 +50,7 @@ public class RoomController {
     }
 
     @GetMapping("all-rooms")
-    public ResponseEntity<List<RoomResponse>> getAllRooms() {
+    public ResponseEntity<List<RoomResponse>> getAllRooms() throws SQLException {
         List<Room> rooms = roomService.getAllRooms();
         List<RoomResponse> roomResponses = new ArrayList<>();
 
@@ -68,7 +72,36 @@ public class RoomController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    private RoomResponse getRoomResponse(Room room) {
+    @PutMapping("/update/room/{roomId}")
+    public ResponseEntity<RoomResponse> updateRoom(
+            @PathVariable Long roomId,
+            @RequestParam(required = false) String roomType,
+            @RequestParam(required = false) BigDecimal roomPrice,
+            @RequestParam(required = false) MultipartFile photo
+    ) throws IOException, SQLException {
+        byte[] photoByes = photo != null && !photo.isEmpty() ?  photo.getBytes() : roomService.getRoomPhotoByRoomId(roomId);
+        Blob photoBlob = photoByes != null && photoByes.length > 0 ? new SerialBlob(photoByes) : null;
+        Room room = roomService.updateRoom(roomId, roomType, roomPrice, photoByes);
+        room.setPhoto(photoBlob);
+        RoomResponse roomResponse = getRoomResponse(room);
+        return ResponseEntity.ok(roomResponse);
+    }
+
+    @GetMapping("/room/{roomId}")
+    public ResponseEntity<Optional<RoomResponse>> getRoomById(@PathVariable Long roomId) {
+        Optional<Room> room = roomService.getRoomById(roomId);
+        return room.map(roomResp -> {
+            RoomResponse roomResponse = null;
+            try {
+                roomResponse = getRoomResponse(roomResp);
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+            return ResponseEntity.ok(Optional.of(roomResponse));
+        }).orElseThrow(() -> new ResourceNotFoundException("Room not found"));
+    }
+
+    private RoomResponse getRoomResponse(Room room) throws SQLException {
         List<BookedRoom> bookedRooms = getAllBookingsByRoomId(room.getId());
 //        List<BookingResponse> bookignsInfo = bookedRooms
 //                .stream()
@@ -78,10 +111,16 @@ public class RoomController {
 //                        booking.getCheckOutDate(),
 //                        booking.getBookingConfirmationCode())
 //                ).toList();
-        byte[] photoBytes = room.getPhoto();
-        if (photoBytes == null) {
-            throw new PhotoRetrievalException("Error retrieving photo");
-        }
+        byte[] photoBytes = null;
+//        Blob photoBlob = room.getPhoto();
+//        photoBytes = photoBlob.getBytes(1, (int) photoBlob.length());
+//            if (photoBlob != null) {
+//                try{
+//                photoBytes = photoBlob.getBytes(1, (int) photoBlob.length());
+//                }catch (SQLException e) {
+//                    throw new PhotoRetrievalException("Unable to find room photo");
+//                }
+//            }
         return new RoomResponse(room.getId(), room.getRoomType(), room.getRoomPrice(), room.isBooked(), photoBytes);
     }
 
