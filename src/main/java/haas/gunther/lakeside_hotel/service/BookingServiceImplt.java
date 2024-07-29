@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-public class BookedRoomServiceImpl implements BookedRoomService {
+public class BookingServiceImplt implements BookingService {
     @Override
     public List<BookedRoom> getAllBookingsByRoomId(Long roomId) {
         return List.of();

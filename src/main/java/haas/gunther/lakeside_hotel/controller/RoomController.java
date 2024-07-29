@@ -1,12 +1,10 @@
 package haas.gunther.lakeside_hotel.controller;
 
-import haas.gunther.lakeside_hotel.exception.PhotoRetrievalException;
 import haas.gunther.lakeside_hotel.exception.ResourceNotFoundException;
 import haas.gunther.lakeside_hotel.model.BookedRoom;
 import haas.gunther.lakeside_hotel.model.Room;
-import haas.gunther.lakeside_hotel.response.BookingResponse;
 import haas.gunther.lakeside_hotel.response.RoomResponse;
-import haas.gunther.lakeside_hotel.service.BookedRoomService;
+import haas.gunther.lakeside_hotel.service.BookingService;
 import haas.gunther.lakeside_hotel.service.RoomService;
 import lombok.RequiredArgsConstructor;
 import org.apache.tomcat.util.codec.binary.Base64;
@@ -31,7 +29,7 @@ import java.util.Optional;
 public class RoomController {
 
     private final RoomService roomService;
-    private final BookedRoomService bookedRoomService;
+    private final BookingService bookedRoomService;
 
     @PostMapping("/add/new-room")
     public ResponseEntity<RoomResponse> addNewRoom(
