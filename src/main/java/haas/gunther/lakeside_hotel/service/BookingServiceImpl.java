@@ -44,7 +44,6 @@ public class BookingServiceImpl implements BookingService {
             try {
                 bookingRepository.save(bookingRequest);
             } catch (Exception e) {
-                // Handle database errors
                 throw new RuntimeException("Error saving booking", e);
             }
         } else {
